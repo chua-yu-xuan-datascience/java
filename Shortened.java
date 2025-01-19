@@ -1,13 +1,19 @@
+import java.util.Scanner;
+
 public class Shortened {
     public static void main(String[] args) {
-        // input
-        String input = args[0];
+        Scanner scanner = new Scanner(System.in);
         
-        // the result we want via a function
+        // input
+        String input = scanner.nextLine();
+        
+        // function
         String result = shorten(input);
         
-        // output the result
+        // output
         System.out.println(result);
+        
+        scanner.close();
     }
     
     // shorten function
