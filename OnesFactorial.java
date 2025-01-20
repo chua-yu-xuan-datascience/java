@@ -8,10 +8,10 @@ public class OnesFactorial {
         Scanner scanner = new Scanner(System.in);
 
         // first input is number of iterations
-        //int T = scanner.nextInt();
+        int T = scanner.nextInt();
 
         // iterate through the next inputs
-        for (int t = 1; t <= 3; t++) {
+        for (int t = 1; t <= T; t++) {
             int N = scanner.nextInt();
             System.out.println(onesdigit[N-1]);
         }
