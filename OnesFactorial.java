@@ -12,8 +12,7 @@ public class OnesFactorial {
 
         // iterate through the next inputs
         for (int t = 1; t <= 3; t++) {
-            //int N = scanner.nextInt();
-            int[] N = {1, 6, 2};
+            int N = scanner.nextInt();
             System.out.println(onesdigit[N-1]);
         }
 
