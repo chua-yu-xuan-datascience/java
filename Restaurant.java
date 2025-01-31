@@ -13,6 +13,7 @@ public class Restaurant {
         for (int i = 1; i <= N; i++) {
             // read the number of items in restaurant
             int M = scanner.nextInt();
+            scanner.nextLine();
             
             String name = scanner.nextLine();  // The name of the restaurant
             boolean PeaSouppresent = false;
@@ -22,10 +23,10 @@ public class Restaurant {
             for (int j = 1; j <= M; j++) {
                 String item = scanner.nextLine(); // item name
                 // check if they == to "pea soup" and "pancakes"
-                if (item == "pea soup") {
+                if (item.equals("pea soup")) {
                     PeaSouppresent = true;
                 }
-                if (item == "pancakes") {
+                if (item.equals("pancakes")) {
                     Pancakespresent = true;
                 }
             }
@@ -34,11 +35,12 @@ public class Restaurant {
                 System.out.println(name);
                 return;
             }
-            scanner.close();
         }
+        
         // If end of outer loop, no restaurant has both true, return this message
-        System.out.println("Anywhere is fine I guess");
-    
+        System.out.println("Anywhere is fine I guess"); 
+        
+        scanner.close();
+        
     }
-  
 }
