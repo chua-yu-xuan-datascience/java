@@ -68,6 +68,7 @@ public class PhoneMessage {
             // output the whole message's result 
             System.out.println("Case #" + i + ": " + resultformsg.toString());
         }
+        
         scanner.close(); 
     }
 }
