@@ -5,9 +5,7 @@
  * in a stringbuilder, put in the seq of num
  * if the last num is same as next num, leave a space between them, actually can tell they are same number can already
  * if there is a blank, put "0" 
- *  */
-// Chua Yu Xuan A0281524H
-
+ */
 import java.util.Scanner;
 
 public class PhoneMessage {
@@ -55,16 +53,16 @@ public class PhoneMessage {
             char prevchar = '\0'; // to store the previous character because need to compare later 
             
             // iterate character by character in each msg 
-            for (char ch : inputmsg.toCharArray()) {
-                String charseq = arr[ch];
+            for (char c : inputmsg.toCharArray()) {
+                String charseq = arr[c];
                 
                 // Leave a space if the output from prev char and output from current char have the same number
-                if (prevchar != '\0' && arr[prevchar].charAt(0) == arr[ch].charAt(0)) {
+                if (prevchar != '\0' && arr[prevchar].charAt(0) == arr[c].charAt(0)) {
                     resultformsg.append(" "); 
                 }
                 
                 resultformsg.append(charseq); 
-                prevchar = ch;
+                prevchar = c;
             }
 
             // output the whole message's result 
