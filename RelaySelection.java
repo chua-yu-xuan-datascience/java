@@ -1,99 +1,100 @@
-import java.util.Scanner;
-
-public class RelayAssemble {
-    // loop from first runner's first time
-    // create many teams by taking other 3 runner's second time
-    // take run time as key, and team names as value
-    // sort dict, return the 1st key and its value
-}
+/*
+  * create 3 arr,  1st one is to fix the runner 1, which we will remove from the 2nd arr. 
+  * We will then keep permutating and swapping 3 runners available in 2nd arr and calculate the timing. 
+  * if the timing is less than the lowest timing, replace it. 
+  * Then when we run through all the possible 3 runner combinations with the 1st person as runner 1, 
+  * we will go to 2nd person in arr1 as runner 1 and remove him from 2nd arr, and then repeat the process to calculate their total timings and finding the shortest time. 
+  * Then finally the 3rd arr is to store the finalised team's names, the last 3 runners can be in any order but runner 1 must be the first name
+  */
 
 import java.util.*;
 
 public class RelaySelection {
+
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         
-        // Read number of runners
-        int n = sc.nextInt();
-        sc.nextLine();  // Consume newline
+        // Read the number of runners for selection
+        int n = scanner.nextInt();
+        // ignore rest of the line and move on
+        scanner.nextLine(); 
         
+        // Create 1st arr --> list to store all runners info
         List<Runner> runners = new ArrayList<>();
         
-        // Read the runners' data
-        for (int i = 0; i < n; i++) {
-            String name = sc.next();
-            double a = sc.nextDouble();  // Time for the first leg (standing start)
-            double b = sc.nextDouble();  // Time for the other legs (flying start)
-            sc.nextLine();  // Consume newline
-            runners.add(new Runner(name, a, b));
+        // Read each runner's data and add to 1st arr
+        for (int i = 1; i <= n; i++) {
+            String runner_name = scanner.next();
+            double a = scanner.nextDouble();
+            double b = scanner.nextDouble();
+            scanner.nextLine();
+            runners.add(new Runner(runner_name, a, b));
         }
         
-        double bestTime = Double.MAX_VALUE;
-        List<Runner> bestTeam = new ArrayList<>();
+        // Initialise fastest time and create 3rd arr to store the fastest team's names
+        double fastestTime = Double.MAX_VALUE;
+        List<String> fastestTeam = new ArrayList<>();
         
-        // Try all combinations of 4 runners from the available list
-        for (int i = 0; i < n - 3; i++) {
-            for (int j = i + 1; j < n - 2; j++) {
-                for (int k = j + 1; k < n - 1; k++) {
-                    for (int l = k + 1; l < n; l++) {
-                        // Select 4 runners: i, j, k, l
-                        List<Runner> team = Arrays.asList(runners.get(i), runners.get(j), runners.get(k), runners.get(l));
-                        
-                        // Generate all permutations of the selected 4 runners
-                        List<List<Runner>> permutations = permute(team);
-                        
-                        // Evaluate each permutation and calculate the total time
-                        for (List<Runner> perm : permutations) {
-                            double totalTime = perm.get(0).a + perm.get(1).b + perm.get(2).b + perm.get(3).b;
-                            
-                            // If this is the best time so far, update the best team
-                            if (totalTime < bestTime) {
-                                bestTime = totalTime;
-                                bestTeam = perm;
-                            }
-                        }
+        // Iterate over each runner in 1st arr and fix them
+        for (int i = 0; i < n; i++) {
+            Runner firstRunner = runners.get(i);
+            
+            // Create 2nd arr that excludes the first runner
+            List<Runner> remainingRunners = new ArrayList<>(runners);
+            remainingRunners.remove(i);
+            
+            // Permutate 3 runners and calculate the team's time
+            for (List<Runner> perm : getPermutations(remainingRunners)) {
+                // Permutate n-1 runners but only select first three
+                double time = firstRunner.a + perm.get(0).b + perm.get(1).b + perm.get(2).b;
+                
+                // if time is shorter, change fastest time and update the team's names
+                if (time < fastestTime) {
+                    fastestTime = time;
+                    fastestTeam.clear();
+                    fastestTeam.add(firstRunner.name); // Add first runner first
+                    for (Runner r : perm) {
+                        fastestTeam.add(r.name); // Add the other runners in the permutation order
                     }
+                
                 }
             }
         }
         
-        // Output the best team and its total time
-        System.out.printf("%.9f\n", bestTime);
-        for (Runner runner : bestTeam) {
-            System.out.println(runner.name);
+        // Output time and the team names
+        System.out.printf("%.2f\n", fastestTime);
+        // Print only the four selected runners
+        for (int i = 0; i < 4; i++) {
+            System.out.println(fastestTeam.get(i));
         }
         
-        sc.close();
+        scanner.close();
     }
-    
-    // Helper function to generate all permutations of a list
-    private static <T> List<List<T>> permute(List<T> list) {
-        List<List<T>> result = new ArrayList<>();
-        if (list.size() == 1) {
-            result.add(new ArrayList<>(list));
-            return result;
-        }
-        
-        for (int i = 0; i < list.size(); i++) {
-            T current = list.get(i);
-            List<T> remaining = new ArrayList<>(list);
-            remaining.remove(i);
-            List<List<T>> permutations = permute(remaining);
-            for (List<T> perm : permutations) {
-                perm.add(0, current);
-                result.add(perm);
-            }
-        }
-        
-        return result;
+
+    // Helper method to get permutations of the list
+    public static <T> List<List<T>> getPermutations(List<T> list) {
+        List<List<T>> permutations = new ArrayList<>();
+        permutationsHelper(list, 0, permutations);
+        return permutations;
     }
-    
-    // Runner class to store runner data (name, first leg time, and other legs time)
+
+    private static <T> void permutationsHelper(List<T> list, int start, List<List<T>> permutations) {
+        if (start == list.size()) {
+            permutations.add(new ArrayList<>(list));
+            return;
+        }
+        for (int i = start; i < list.size(); i++) {
+            Collections.swap(list, start, i);
+            permutationsHelper(list, start + 1, permutations);
+            Collections.swap(list, start, i); // backtrack
+        }
+    }
+
+    // specify Runner class to hold information about a runner
     static class Runner {
         String name;
-        double a;  // Time for the first leg
-        double b;  // Time for the other legs
-        
+        double a, b;
+
         Runner(String name, double a, double b) {
             this.name = name;
             this.a = a;
@@ -101,6 +102,7 @@ public class RelaySelection {
         }
     }
 }
+
 /*You are the coach of the national athletics team and need to select which sprinters should represent your country in the 4 x100 m relay in the upcoming championships. 
 As the name of the event implies, such a sprint relay consist of 
   4legs,  
@@ -153,3 +155,5 @@ BOLT
 POWELL
 BLAKE
  */
+
+ 

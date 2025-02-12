@@ -1,111 +1,91 @@
 import java.util.*;
 
 public class RawrCards {
-    
-    static class Transaction {
-        long buyCost;
-        long sellProfit;
-        
-        Transaction(long buyCost, long sellProfit) {
-            this.buyCost = buyCost;
-            this.sellProfit = sellProfit;
-        }
-    }
-
-    public static long maxProfit(int N, int T, int K, int[] deck, Transaction[] transactions) {
-        // Step 1: Count the number of cards Anthony has for each type
-        int[] cardCount = new int[T + 1];  // cardCount[i] is the count of cards of type i
-        for (int card : deck) {
-            cardCount[card]++;
-        }
-        
-        List<Transaction> buyCosts = new ArrayList<>(); // List of buying options
-        List<Transaction> sellProfits = new ArrayList<>(); // List of selling options
-        long currentCombos = 0;
-        
-        // Step 2: Analyze the profit/loss for each card type
-        for (int i = 1; i <= T; i++) {
-            int count = cardCount[i];
-            long ai = transactions[i - 1].buyCost; // Buy cost
-            long bi = transactions[i - 1].sellProfit; // Sell profit
-            
-            if (count == 2) {
-                // Already a combo, Anthony can sell both cards
-                currentCombos++;
-                sellProfits.add(new Transaction(2 * bi, 0));  // Selling both cards
-            } else if (count == 1) {
-                // Need to complete the combo
-                buyCosts.add(new Transaction(ai, 0));  // Buy 1 more card to complete the combo
-                sellProfits.add(new Transaction(0, bi));  // Can also sell the one card
-            } else if (count == 0) {
-                // Need to buy 2 cards to make a combo
-                buyCosts.add(new Transaction(2 * ai, 0));  // Buy 2 cards
-            }
-        }
-        
-        // We need exactly K combos. Calculate the difference
-        int combosNeeded = K - (int)currentCombos;
-        
-        long totalProfit = 0;
-        
-        // Step 3: Maximize profit or minimize loss
-        
-        // If we need more combos (combosNeeded > 0), start by buying the necessary combos
-        if (combosNeeded > 0) {
-            // Sort the buying costs by the cheapest option first (ascending order)
-            buyCosts.sort(Comparator.comparingLong(a -> a.buyCost));
-            
-            // Buy the necessary combos by selecting the cheapest options
-            for (int i = 0; i < combosNeeded; i++) {
-                if (i < buyCosts.size()) {
-                    totalProfit -= buyCosts.get(i).buyCost;  // Deduct the cost of buying cards
-                }
-            }
-        }
-        
-        // If we have more combos than needed (combosNeeded < 0), sell excess cards
-        if (combosNeeded < 0) {
-            // Sort the selling profits by the highest profit first (descending order)
-            sellProfits.sort((a, b) -> Long.compare(b.sellProfit, a.sellProfit));  // Sort by sellProfit descending
-            
-            // Sell the excess combos for maximum profit
-            for (int i = 0; i < -combosNeeded; i++) {
-                if (i < sellProfits.size()) {
-                    totalProfit += sellProfits.get(i).sellProfit;  // Add profit from selling cards
-                }
-            }
-        }
-        
-        return totalProfit;
-    }
-
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        
-        // Read input
-        int N = sc.nextInt();
-        int T = sc.nextInt();
-        int K = sc.nextInt();
-        
-        int[] deck = new int[N];
+
+        // Read the inputs
+        int N = sc.nextInt();  // Number of cards
+        int T = sc.nextInt();  // Total different card types
+        int K = sc.nextInt();  // Number of combos required
+
+        int[] cardCount = new int[T + 1];  // Array to store the count of each card type (index 1 to T)
         for (int i = 0; i < N; i++) {
-            deck[i] = sc.nextInt();
+            int cardType = sc.nextInt();  // Read card types
+            cardCount[cardType]++;  // Increment the count of that card type
         }
-        
-        Transaction[] transactions = new Transaction[T];
-        for (int i = 0; i < T; i++) {
-            long ai = sc.nextLong();
-            long bi = sc.nextLong();
-            transactions[i] = new Transaction(ai, bi);
+
+        // A list to store Card objects that hold information about the cards
+        ArrayList<Card> cardList = new ArrayList<>();
+
+        // Read buy and sell prices for each card type and store the necessary data
+        for (int i = 1; i <= T; i++) {
+            int buyPrice = sc.nextInt();  // Buy price for card type i
+            int sellPrice = sc.nextInt();  // Sell price for card type i
+
+            // Calculate the opportunity cost (-buy + sell)
+            int opportunityCost = -buyPrice + sellPrice;
+            int totalValue = ((2 - cardCount[i]) * buyPrice) + (cardCount[i] * sellPrice);
+
+            // Create and add the Card object to the list
+            cardList.add(new Card(i, cardCount[i], buyPrice, sellPrice, opportunityCost, totalValue));
         }
-        
-        // Call the function to calculate the optimal profit
-        long result = maxProfit(N, T, K, deck, transactions);
-        
-        // Output the result
-        System.out.println(result);
+
+        // Sort the card list based on the opportunity cost (lowest to highest)
+        cardList.sort(new SortByOpportunityCost());
+
+        long profit = 0;
+
+        // For the first K cards, subtract the cost to complete the combos (buying cards if necessary)
+        for (int i = 0; i < K; i++) {
+            Card card = cardList.get(i);
+            profit -= card.costToCombo;  // Subtract the cost to make the combo
+        }
+
+        // For the remaining T-K cards, add the profit from selling the cards
+        for (int i = K; i < T; i++) {
+            Card card = cardList.get(i);
+            profit += card.costToSell;  // Add the profit from selling the cards
+        }
+
+        // Print the final profit or loss
+        System.out.println(profit);
     }
 }
+
+// Card class to represent each card type's information
+class Card {
+    int cardNum;       // The card type number
+    int total;         // The number of cards of this type in the deck
+    int buyPrice;      // Buy price for this card type
+    int sellPrice;     // Sell price for this card type
+    int opportunityCost; // The opportunity cost (-buy + sell)
+    int costToCombo;   // The cost to buy enough cards for the combo (if needed)
+    int costToSell;    // The profit from selling all cards of this type
+
+    public Card(int cardNum, int total, int buyPrice, int sellPrice, int opportunityCost, int totalValue) {
+        this.cardNum = cardNum;
+        this.total = total;
+        this.buyPrice = buyPrice;
+        this.sellPrice = sellPrice;
+        this.opportunityCost = opportunityCost;
+
+        // Calculate costToCombo (buy enough cards for combo, if needed)
+        this.costToCombo = (2 - total) * buyPrice;
+
+        // Calculate costToSell (profit from selling the cards)
+        this.costToSell = total * sellPrice;
+    }
+}
+
+// Comparator to sort cards by opportunity cost (ascending)
+class SortByOpportunityCost implements Comparator<Card> {
+    public int compare(Card a, Card b) {
+        return Integer.compare(a.opportunityCost, b.opportunityCost);
+    }
+}
+
+
 /* Anthony and Cora are playing Dominion, their favorite card game. In Dominion, there are 
 T different card types, and each player has a set of cards (known as a deck). A deck  D
 is said to have C 
@@ -171,4 +151,7 @@ no you can still sell the 2 cards in the combo, you dont have to leave them unto
 , then he’ll end up spending 20 
  coins.
 */ 
+/*
+ * i have a hint from my friend again. i need to make an object class to store buy+sell+sum and need to make a comparator to compare the sums. K combos means we need to choose the K number lowest Opportunity Cost (defined by buy+sell) and then sell the rest of the types of cards. so if any type of cards with 1 card, you have two moves - sell 1 or buy 1 (calculate their respective opportunity costs), if you have 0 cards of the type - must buy 2 (calculate opportunity costs of doing that) and if you have 2 cards of that type - must sell 2(also calculate opportunity costs of doing that). so you calculate the opportunity costs of doing that to all the types of cards so for example, if you have 4 types of cards, and need 2 combos. select the 2 combos with lowest opportunity cost and sell the other 2 types of cards. my friend also said to use 2 arr and 1 hashmap. the hashmap is to count the number of types of cards we originally have
+ */
 
