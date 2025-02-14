@@ -61,7 +61,7 @@ public class MiddleAlphabet {
         scanner.close();
     }
 
-    // Pair class to store word and its original index
+    // WandI class to store word and its original index
     static class WandI {
         String word;
         int index;
