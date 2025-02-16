@@ -41,6 +41,5 @@ public class Restaurant {
         System.out.println("Anywhere is fine I guess"); 
         
         scanner.close();
-        
     }
 }
