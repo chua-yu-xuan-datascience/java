@@ -64,6 +64,73 @@ class Kattio extends PrintWriter {
     }
 }
 
+class LinkedListNode {
+    String value;
+    LinkedListNode next;
+
+    // Constructor to initialize Linkedlist node with a string value (our word later)
+    public LinkedListNode(String value) {
+        this.value = value;
+        this.next = null;
+    }
+}
+
+
+public class FormTheSentence {
+    public static void main(String[] args) {
+        
+        Kattio io = new Kattio(System.in, System.out);
+        
+        // N for number of strings
+        int N = io.getInt(); 
+        
+        LinkedListNode[] nodes = new LinkedListNode[N];
+        
+        // Read all strings and make a node point to each string
+        for (int i = 0; i < N; i++) {
+            String word = io.getWord();
+            nodes[i] = new LinkedListNode(word);
+        }
+        
+        // Merge strings
+        for (int i = 0; i < N - 1; i++) {
+            int a = io.getInt() - 1; // first string
+            int b = io.getInt() - 1; // second string
+            // get our curr node
+            LinkedListNode currnode_a = nodes[a];
+
+            // pointer to the last node of linkedlist so that we can link start of second string to end of first string
+            while (currnode_a.next != null) {
+                currnode_a = currnode_a.next;
+            }
+            currnode_a.next = nodes[b]; // Link the second string to the first string
+            nodes[b] = null; //nodes[b] points to nothing now
+        }
+
+        // find the non-null node containing our strings
+        LinkedListNode thenode = null;
+        for (int i = 0; i < N; i++) {
+            if (nodes[i] != null) {
+                thenode = nodes[i];
+                break;
+            }
+        }
+        
+        // put the strings together to output as one line
+        StringBuilder result = new StringBuilder();
+        LinkedListNode res_node = thenode;
+        while (res_node != null) {
+            result.append(res_node.value);
+            res_node = res_node.next;
+        }
+        
+        io.println(result.toString());
+        
+        io.close();
+    }
+}
+
+/*
 public class FormTheSentence {
     public static void main(String[] args) {
         
@@ -100,10 +167,10 @@ public class FormTheSentence {
             }
         }
         
-        // Close the Kattio object
         io.close();
     }
 }
+*/
 
 
 /*You are given a collection of N non-empty strings, denoted by S1, S2,... Sn. Then you are given 
