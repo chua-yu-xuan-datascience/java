@@ -79,7 +79,7 @@ public class FormTheSentence {
         for (int i = 0; i < N; i++) {
             String word = io.getWord();
             nodes[i] = new LinkedListNode(word);
-            lastNode[i] = nodes[i];
+            lastNode[i] = nodes[i]; // initially, the only node is also the lastnode in the list
         }
         
         // Merge strings
@@ -119,70 +119,3 @@ public class FormTheSentence {
         io.close();
     }
 }
-
-
-
-
-/*
-public class FormTheSentence {
-    public static void main(String[] args) {
-        
-        Kattio io = new Kattio(System.in, System.out);
-        
-        // N for number of strings
-        int N = io.getInt();
-        
-        // Use stringbuilder than arrays, so that dont have to modify without creating new objects
-        StringBuilder[] strings = new StringBuilder[N];
-
-        // add strings to stringbuilder
-        for (int i = 0; i < N; i++) {
-            strings[i] = new StringBuilder(io.getWord());  
-        }
-        
-        // join the strings together
-        for (int i = 0; i < N - 1; i++) {
-            int a = io.getInt() - 1; // for indexing purposes
-            int b = io.getInt() - 1; 
-            
-            // Append string at pos b to string at pos a 
-            strings[a].append(strings[b]);  
-
-            // Empty at pos b
-            strings[b] = new StringBuilder();  
-            }
-        
-        // output the one slot that isnt empty (has our final sentence)
-        for (int i = 0; i < N; i++) {
-            if (!strings[i].isEmpty()) {
-                io.println(strings[i]);
-                break;
-            }
-        }
-        
-        io.close();
-    }
-}
-*/
-
-
-/*You are given a collection of N non-empty strings, denoted by S1, S2,... Sn. Then you are given 
-N-1 operations which you execute in the order they are given. The ith
-operation is has the following format: ‘ab’ (1-based indexing, without the quotes), 
-which means that you have to make the following changes:
-- Sa = Sa + Sb, i.e. concatenate ath string and bth string and store the result in ath string,
-- Sb = "", i.e. make the bth string empty, after doing the previous step.
-
-You are ensured that after the i-th operation, there will be no future operation that will be accessing 
-Sb. Given these operations to join strings, print the last string that will remain at the end of this process. 
-
-Input
-The first line contains an integer N (1 <= N <= 10 ^5) denoting the number of strings given. Each of the next N
-lines contains a string denoting the Si. All the characters in the string Si are lowercase alphabets from ‘a’ to ‘z’. 
-The total number of characters over all the strings is at most 10^6, i.e sumn i=1 |Si| <= 10^6, where |Si| 
-denotes the length of the ith string. After these N strings, each of the next N-1 lines contain two integers 
-a and b, such that a =/= b and 1 <= a,b <= N  denoting the i=th operation.
-
-Output
-Print the last string which remains at the end of the N-1 operations.
-*/
