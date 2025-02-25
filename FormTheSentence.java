@@ -25,19 +25,9 @@ class Kattio extends PrintWriter {
         return Integer.parseInt(nextToken());
     }
 
-    public double getDouble() {
-        return Double.parseDouble(nextToken());
-    }
-
-    public long getLong() {
-        return Long.parseLong(nextToken());
-    }
-
     public String getWord() {
         return nextToken();
     }
-
-
 
     private BufferedReader r;
     private String line;
@@ -65,70 +55,73 @@ class Kattio extends PrintWriter {
 }
 
 class LinkedListNode {
-    String value;
+    String data;
     LinkedListNode next;
 
-    // Constructor to initialize Linkedlist node with a string value (our word later)
-    public LinkedListNode(String value) {
-        this.value = value;
+    // Constructor to initialize Linkedlist node with a string as its data
+    public LinkedListNode(String data) {
+        this.data = data;
         this.next = null;
     }
 }
 
-
 public class FormTheSentence {
     public static void main(String[] args) {
-        
         Kattio io = new Kattio(System.in, System.out);
         
         // N for number of strings
-        int N = io.getInt(); 
+        int N = io.getInt();
         
         LinkedListNode[] nodes = new LinkedListNode[N];
+        LinkedListNode[] lastNode = new LinkedListNode[N];
         
-        // Read all strings and make a node point to each string
+        // Read all strings and make a node contain each string
         for (int i = 0; i < N; i++) {
             String word = io.getWord();
             nodes[i] = new LinkedListNode(word);
+            lastNode[i] = nodes[i];
         }
         
         // Merge strings
         for (int i = 0; i < N - 1; i++) {
             int a = io.getInt() - 1; // first string
             int b = io.getInt() - 1; // second string
-            // get our curr node
-            LinkedListNode currnode_a = nodes[a];
-
-            // pointer to the last node of linkedlist so that we can link start of second string to end of first string
-            while (currnode_a.next != null) {
-                currnode_a = currnode_a.next;
-            }
-            currnode_a.next = nodes[b]; // Link the second string to the first string
-            nodes[b] = null; //nodes[b] points to nothing now
+            
+            // Link lastnode of linkedlist a to start of b
+            lastNode[a].next = nodes[b];
+            
+            // Update the lastNode to be the lastNode of linkedlist b
+            lastNode[a] = lastNode[b];
+            
+            // b has no data now
+            nodes[b] = null;
         }
 
-        // find the non-null node containing our strings
-        LinkedListNode thenode = null;
+        // Find the first non-null node
+        LinkedListNode finalNode = null;
         for (int i = 0; i < N; i++) {
             if (nodes[i] != null) {
-                thenode = nodes[i];
+                finalNode = nodes[i];
                 break;
             }
         }
         
-        // put the strings together to output as one line
+        // Build the final result string using StringBuilder
         StringBuilder result = new StringBuilder();
-        LinkedListNode res_node = thenode;
-        while (res_node != null) {
-            result.append(res_node.value);
-            res_node = res_node.next;
-        }
         
+        while (finalNode != null) {
+            result.append(finalNode.data);
+            finalNode = finalNode.next;
+        }
+
         io.println(result.toString());
         
         io.close();
     }
 }
+
+
+
 
 /*
 public class FormTheSentence {
