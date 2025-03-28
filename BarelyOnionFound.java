@@ -354,3 +354,163 @@ public class BarelyOnionFound {
     }
 }
 */
+
+import java.io.*;
+import java.util.*;
+
+class UnionFind {
+    private int[] root;
+    private int[] next;
+    private int[] size;
+    private long[] sum;
+
+    public UnionFind(int N) {
+        root = new int[N + 1];
+        next = new int[N + 1];
+        size = new int[N + 1];
+        sum = new long[N + 1];
+        
+        // Initialise disjoint sets with their own element, size = 1
+        for (int i = 1; i <= N; i++) {
+            root[i] = i;
+            next[i] = i;
+            size[i] = 1;
+            sum[i] = i;
+            
+        }
+    }
+
+    // Find with path compression to return root 
+    public int findSet(int i) {
+        while (next[i] != root[i]) {
+            next[i] = next[next[i]]; // move up until identify root
+        }
+    
+        return next[i];
+    }
+
+    // Check if two elements are in the same set by root
+    public boolean isSameSet(int i, int j) {
+        return findSet(i) == findSet(j);
+    }
+
+    // Union, no need by rank because in this question, all the sets will be flat
+    public void unionSet(int i, int j) {
+        if (!isSameSet(i, j)) {
+            int x = findSet(i);
+            int y = findSet(j);
+                     
+            root[y] = x; 
+            next[i] = x;
+            size[x] += size[y];
+            sum[x] += sum[y];                    
+        }
+                
+    }
+
+    // Move an element from one set to another
+    public void moveSet(int i, int j) {
+        if (!isSameSet(i, j)) {
+            int x = findSet(i);
+            int y = findSet(j);
+            
+            // Remove elem i from original set
+            size[x]--;
+            sum[x] -= i;
+
+            // Move the element to the root of the set containing j
+            next[i] = y;
+            root[i] = y;
+
+            // Update the size and sum of the set containing y
+            size[y]++;
+            sum[y] += i;
+        }
+    }
+
+    // Query the size and sum of the set containing the element i
+    public String querySet(int i) {
+        int x = findSet(i);
+        return size[x] + " " + sum[x];
+    }
+}
+
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+
+    public String getWord() {
+        return nextToken();
+    }
+
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
+
+public class BarelyOnionFound {
+    public static void main(String[] args) {
+        Kattio io = new Kattio(System.in);
+        while (io.hasMoreTokens()) {
+            int n = io.getInt();
+            int m = io.getInt();
+
+            UnionFind auf = new UnionFind(n);
+
+            for (int i = 0; i < m; i++) {
+                int op = io.getInt();
+
+                if (op == 1) {
+                    int p = io.getInt();
+                    int q = io.getInt();
+                    auf.unionSet(p, q);
+
+                } else if (op == 2) {
+                    int p = io.getInt();
+                    int q = io.getInt();
+                    auf.moveSet(p, q);
+
+                } else if (op == 3) {
+                    int p = io.getInt();
+                    io.println(auf.querySet(p));
+                }
+            }
+        }
+        io.close();
+    }
+}
