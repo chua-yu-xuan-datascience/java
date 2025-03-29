@@ -360,33 +360,34 @@ import java.util.*;
 
 class UnionFind {
     private int[] root;
-    private int[] next;
-    private int[] size;
+    private int[] parent;
+    private long[] size;
     private long[] sum;
 
     public UnionFind(int N) {
-        root = new int[N + 1];
-        next = new int[N + 1];
-        size = new int[N + 1];
+        root = new int[N + 1]; // rep of the set the node is in
+        parent = new int[N + 1]; // parent of the node
+        size = new long[N + 1];
         sum = new long[N + 1];
         
         // Initialise disjoint sets with their own element, size = 1
         for (int i = 1; i <= N; i++) {
             root[i] = i;
-            next[i] = i;
+            parent[i] = i;
             size[i] = 1;
             sum[i] = i;
             
         }
     }
 
-    // Find with path compression to return root 
+    // Find with path compression to return real root 
     public int findSet(int i) {
-        while (next[i] != root[i]) {
-            next[i] = next[next[i]]; // move up until identify root
+        int tempRoot = root[i];
+        while (parent[tempRoot] != tempRoot) { // if node's parent is not itself, it is not the real root
+            tempRoot = parent[tempRoot]; // move up until identify root
         }
-    
-        return next[i];
+        root[i] = tempRoot; // real root of i
+        return root[i];
     }
 
     // Check if two elements are in the same set by root
@@ -400,10 +401,10 @@ class UnionFind {
             int x = findSet(i);
             int y = findSet(j);
                      
-            root[y] = x; 
-            next[i] = x;
-            size[x] += size[y];
-            sum[x] += sum[y];                    
+            parent[x] = y; 
+            root[i] = y;
+            size[y] += size[x];
+            sum[y] += sum[x];                    
         }
                 
     }
@@ -414,12 +415,12 @@ class UnionFind {
             int x = findSet(i);
             int y = findSet(j);
             
-            // Remove elem i from original set
+            // Remove elem i from original setp of i
             size[x]--;
             sum[x] -= i;
 
-            // Move the element to the root of the set containing j
-            next[i] = y;
+            // Only change root of i to y and not parent so that structure of set of i is maintained
+            // when children of i calls findset (uses parent), they will find their correct root
             root[i] = y;
 
             // Update the size and sum of the set containing y
