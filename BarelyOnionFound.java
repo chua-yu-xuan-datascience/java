@@ -363,12 +363,14 @@ class UnionFind {
     private int[] parent;
     private long[] size;
     private long[] sum;
+    private int[] rank;
 
     public UnionFind(int N) {
         root = new int[N + 1]; // rep of the set the node is in
-        parent = new int[N + 1]; // parent of the node
+        parent = new int[N + 1]; // parent of the node (or next pointer)
         size = new long[N + 1];
         sum = new long[N + 1];
+        rank = new int[N + 1];
         
         // Initialise disjoint sets with their own element, size = 1
         for (int i = 1; i <= N; i++) {
@@ -376,6 +378,7 @@ class UnionFind {
             parent[i] = i;
             size[i] = 1;
             sum[i] = i;
+            rank[i] = 0;
             
         }
     }
@@ -396,18 +399,43 @@ class UnionFind {
     }
 
     // Union, no need by rank because in this question, all the sets will be flat
+    //public void unionSet(int i, int j) {
+        //if (!isSameSet(i, j)) {
+            //int x = findSet(i);
+            //int y = findSet(j);
+                     
+            //parent[x] = y; 
+            //root[i] = y;
+            //size[y] += size[x];
+            //sum[y] += sum[x];                    
+        //}
+                
+    //}
+
     public void unionSet(int i, int j) {
         if (!isSameSet(i, j)) {
             int x = findSet(i);
             int y = findSet(j);
-                     
-            parent[x] = y; 
-            root[i] = y;
-            size[y] += size[x];
-            sum[y] += sum[x];                    
+    
+            // Perform union by rank
+            if (rank[x] > rank[y]) {
+                parent[y] = x;
+                root[j] = x;
+                size[x] += size[y];
+                sum[x] += sum[y];
+            } else {
+                parent[x] = y;
+                root[i] = y;
+                size[y] += size[x];
+                sum[y] += sum[x];
+            } 
+            
+            if (rank[x] == rank[y]) {
+                rank[y]++;  // Increase the rank of the new root
+            }
         }
-                
     }
+    
 
     // Move an element from one set to another
     public void moveSet(int i, int j) {
@@ -415,7 +443,7 @@ class UnionFind {
             int x = findSet(i);
             int y = findSet(j);
             
-            // Remove elem i from original setp of i
+            // Remove elem i from original set of i
             size[x]--;
             sum[x] -= i;
 
@@ -423,7 +451,7 @@ class UnionFind {
             // when children of i calls findset (uses parent), they will find their correct root
             root[i] = y;
 
-            // Update the size and sum of the set containing y
+            // Update the size and sum of the set containing j
             size[y]++;
             sum[y] += i;
         }

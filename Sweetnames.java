@@ -228,7 +228,6 @@ class AVL {
         return 1 + countLowerBound(lca.left, nickname) + countUpperBound(lca.right, nickname);
     }
 
-    // Find the lowest valid node in the tree based on the nickname (lower bound)
     private Vertex findLCA(String nickname, Vertex node) {
         if (node == null) {
             return null;
