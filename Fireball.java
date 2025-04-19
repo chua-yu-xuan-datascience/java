@@ -51,7 +51,7 @@ public class Fireball {
         List<List<Edge>> graph = new ArrayList<>();
         for (int i = 0; i < totalV; i++) graph.add(new ArrayList<>());
 
-        // Calculate edge weights btw vertices (time cost) anda build the graph
+        // Calculate edge weights btw vertices (time cost) and build the graph
         for (int i = 0; i < totalV; i++) {
             for (int j = 0; j < totalV; j++) {
                 if (i == j) continue;
@@ -63,7 +63,7 @@ public class Fireball {
                     // From start: only running
                     time = d / 5.0;
                 } else {
-                    // From cannon: use cannon
+                    // From cannon: fixed 2 sec cannon time + time to cover the difference from 50m (run before/after)
                     time = 2.0 + Math.abs(d - 50) / 5.0; // cannon: 2 sec + extra run
                 }
 
@@ -71,9 +71,9 @@ public class Fireball {
             }
         }
 
-        double[] best = new double[totalV];
-        Arrays.fill(best, Double.MAX_VALUE);
-        best[0] = 0;
+        double[] minTimeTo = new double[totalV];
+        Arrays.fill(minTimeTo, Double.MAX_VALUE);
+        minTimeTo[0] = 0;
 
         PriorityQueue<State> pq = new PriorityQueue<>();
         pq.add(new State(0, 0)); // Start at node 0 with time 0
@@ -83,17 +83,17 @@ public class Fireball {
         while (!pq.isEmpty()) {
             State cur = pq.poll();
 
-            if (cur.time > best[cur.node]) continue;
+            if (cur.time > minTimeTo[cur.node]) continue;
 
             for (Edge e : graph.get(cur.node)) {
                 double newTime = cur.time + e.time;
-                if (newTime < best[e.to]) {
-                    best[e.to] = newTime;
+                if (newTime < minTimeTo[e.to]) {
+                    minTimeTo[e.to] = newTime;
                     pq.add(new State(e.to, newTime));
                 }
             }
         }
 
-        System.out.printf("%.6f\n", best[1]);
+        System.out.printf("%.6f\n", minTimeTo[1]);
     }
 }
